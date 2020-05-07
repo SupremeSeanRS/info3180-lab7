@@ -12,10 +12,62 @@ Vue.component('app-header', {
           <li class="nav-item active">
             <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
           </li>
+          <li class="nav-item active">
+            <router-link class="nav-link" to="/api/upload">Upload <span class="sr-only">(current)</span></router-link>
+          </li>
         </ul>
       </div>
     </nav>
     `
+});
+
+const Upload = Vue.component('upload-form', {
+    template: `
+    
+    <div>
+    <form id="uploadForm" action="/api/upload" method="post" @submit.prevent="uploadPhoto">
+        <br>
+        <label for="description">Description</label>
+        <br>
+        <textarea rows="4" cols="50" name="description" placeholder="Enter details here..."></textarea>
+        
+        <br>
+        
+        <label for="photo">Photo Upload</label>
+        <br>
+        <input type="file" id="myfile" name="photo"/>
+        
+        <br><br>
+        
+        <input type="submit" value="Submit">
+    </form>
+  </div>   
+    `,
+    methods: {
+        uploadPhoto: function() {
+            let uploadForm = document.getElementById('uploadForm');
+            let form_data = new FormData(uploadForm); 
+
+            fetch("/api/upload", {
+                method: 'POST',
+                body: form_data,
+               headers: {
+                'X-CSRFToken': token
+                },
+                credentials: 'same-origin'
+                })
+                .then(function (response) {
+                return response.json();
+                })
+                .then(function (jsonResponse) {
+                // display a success/error message
+                console.log(jsonResponse);
+                })
+                .catch(function (error) { 
+                console.error(error);
+                });
+        }
+    }
 });
 
 Vue.component('app-footer', {
@@ -57,6 +109,7 @@ const router = new VueRouter({
     routes: [
         {path: "/", component: Home},
         // Put other routes here
+        { path: '/api/upload', component: Upload },
 
         // This is a catch all route in case none of the above matches
         {path: "*", component: NotFound}
